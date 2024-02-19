@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         player = MediaPlayer()
-        val mediaFileUriStr = "android.resource://com.example.mediasample/${R.raw.bird_singing}"
+        val mediaFileUriStr = "android.resource://${packageName}/${R.raw.bird_singing}"
         val mediaFileUri = Uri.parse(mediaFileUriStr)
 
         player?.let {
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun onBackButtonClick(view: View){
+    fun onBackButtonClick(view: View) {
         player?.seekTo(0)
     }
 
