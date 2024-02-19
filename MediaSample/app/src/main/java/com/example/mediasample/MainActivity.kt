@@ -84,7 +84,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun onBackButtonClick(view: View) { player?.seekTo(0) }
+    fun onBackButtonClick(view: View) {
+        player?.seekTo(0)
+    }
 
     fun onForwardButtonClick(view: View) {
         player?.let {
