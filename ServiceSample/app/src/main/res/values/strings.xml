@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MediaSample</string>
+    <string name="app_name">ServiceSample</string>
     <string name="bt_play_play">再生</string>
     <string name="bt_play_stop">停止</string>
     <string name="msg_notification_title_start">再生開始</string>

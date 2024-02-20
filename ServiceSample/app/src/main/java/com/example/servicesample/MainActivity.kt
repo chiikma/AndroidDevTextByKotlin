@@ -9,10 +9,13 @@ import android.view.View
 import android.widget.Button
 import androidx.core.app.ActivityCompat
 import android.Manifest
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 
 
 class MainActivity : AppCompatActivity() {
-    @SuppressLint("SuspiciousIndentation")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -24,11 +27,19 @@ class MainActivity : AppCompatActivity() {
 			ActivityCompat.requestPermissions(this@MainActivity, permissions, 1000)
 			return
 		}
+
+        val fromNotification = intent.getBooleanExtra("fromNotification", false)
+        if(fromNotification) {
+            val btPlay = findViewById<Button>(R.id.btPlay)
+            val btStop = findViewById<Button>(R.id.btStop)
+            btPlay.isEnabled = false
+            btStop.isEnabled = true
+        }
     }
 
     fun onPlayButtonClick(view: View){
-        val intent = Intent(this@MainActivity, SoundManagerService::class.java)
-        startService(intent)
+        val serviceIntent = Intent(this@MainActivity, SoundManagerService::class.java)
+        ContextCompat.startForegroundService(this@MainActivity, serviceIntent)
 
         val btPlay = findViewById<Button>(R.id.btPlay)
         val btStop = findViewById<Button>(R.id.btStop)

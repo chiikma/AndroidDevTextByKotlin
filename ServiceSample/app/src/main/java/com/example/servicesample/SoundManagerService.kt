@@ -2,13 +2,15 @@ package com.example.servicesample
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
-import android.view.View
-import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
@@ -23,14 +25,22 @@ class SoundManagerService : Service() {
     override fun onCreate() {
         player = MediaPlayer()
 
+        val manager = getSystemService(NotificationManager::class.java)
         val name = getString(R.string.notification_channel_name)
         val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(CHANNEL_ID, name, importance)
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(channel)
+        val notifyDescription = "お知らせを通知します"
+
+        if (manager.getNotificationChannel(CHANNEL_ID) == null) {
+            val channel = NotificationChannel(CHANNEL_ID, name, importance)
+            channel.apply {
+                description = notifyDescription
+            }
+            manager.createNotificationChannel(channel)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         val mediaFileUriStr = "android.resource://${packageName}/${R.raw.bird_singing}"
         val mediaFileUri = Uri.parse(mediaFileUriStr)
 
@@ -40,7 +50,6 @@ class SoundManagerService : Service() {
             it.setOnCompletionListener(PlayerCompletionListener())
             it.prepareAsync()
         }
-
         return START_NOT_STICKY
     }
 
@@ -53,9 +62,25 @@ class SoundManagerService : Service() {
         }
     }
 
-    private inner class PlayerPreparedListener: MediaPlayer.OnPreparedListener {
+    private inner class PlayerPreparedListener : MediaPlayer.OnPreparedListener {
         override fun onPrepared(mp: MediaPlayer) {
+            // メディアを再生。
             mp.start()
+
+            val intent = Intent(this@SoundManagerService, MainActivity::class.java)
+            intent.putExtra("fromNotification", true)
+            val stopServiceIntent = PendingIntent.getActivity(this@SoundManagerService, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+            // Notificationを作成するBuilderクラス生成。
+            val notification = NotificationCompat.Builder(this@SoundManagerService, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(getString(R.string.msg_notification_title_start))
+                .setContentText(getString(R.string.msg_notification_text_start))
+                .setContentIntent(stopServiceIntent)
+                .setAutoCancel(true)
+                .build()
+
+            startForeground(1,  notification)
         }
     }
 
